@@ -25,12 +25,21 @@ body {
   row-gap: 10px;
 }
 
-.calculator .display-screen {
-  flex-basis: 20%;
+.calculator .display {
+  flex-basis: 25%;
+  color: #fff;
+  padding: 10px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  font-size: 36px;
+  word-wrap: break-word;
+  word-break: break-all;
+  text-align: right;
 }
 
 .calculator .buttons {
-  flex-basis: 80%;
+  flex-basis: 75%;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -52,6 +61,17 @@ body {
   box-shadow: 0 0 3px 3px gray;
 }
 
-.calculator .buttons .equals-btn {
+.calculator .buttons .btn.op {
+  color: gold;
+  font-weight: 900;
+  font-size: 22px;
+}
+/* .calculator .buttons .btn.zero {
+  flex-grow: 0;
+} */
+.calculator .buttons .btn.equalsBtn {
   min-width: 124px;
+  font-size: 24px;
+  font-weight: 600;
+  color: gold;
 }
