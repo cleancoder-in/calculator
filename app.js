@@ -146,7 +146,9 @@ function checkLimitAndUpdateFont() {
     primaryDisplay.style.fontSize = 20 + "px";
   else if (numberCount > 15) {
     alert("Can't enter more than 15 digits");
-    return;
+    primaryDisplay.textContent = primaryDisplay.textContent
+      .toString()
+      .slice(0, -1);
   }
 }
 
