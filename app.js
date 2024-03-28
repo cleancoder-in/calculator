@@ -1,196 +1,179 @@
 //global variables
-let text = "";
-let finalExp = false;
-let a, b, op;
+let firstOperand, secondOperand, op;
+let resetScreen = false;
+let expAvailable = false;
+let equalsBtnNotClicked = false;
+let numberCount = 0;
 
 //selection
-const display = document.querySelector(".display");
-const btns = document.querySelectorAll(".btn");
+const primaryDisplay = document.querySelector(".displayPrimary");
+const secondaryDisplay = document.querySelector(".displaySecondary");
+const numberBtns = document.querySelectorAll(".digit");
+const operatorBtns = document.querySelectorAll(".op");
+const equalsBtn = document.querySelector(".equalsBtn");
+const decimalBtn = document.querySelector(".decimal");
+const clearBtn = document.querySelector(".clear");
+const deleteBtn = document.querySelector(".delete");
 
-// calculate` functions
+//event listeners
+numberBtns.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    getNumber(btn.textContent);
+  });
+});
+
+operatorBtns.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    getOperator(btn.textContent);
+  });
+});
+
+equalsBtn.addEventListener("click", evaluate);
+decimalBtn.addEventListener("click", getDecimal);
+clearBtn.addEventListener("click", clear);
+deleteBtn.addEventListener("click", deleteNumber);
+
+// main functions
+function getNumber(num) {
+  if (resetScreen) {
+    clearScreen();
+  }
+  primaryDisplay.textContent += num;
+  numberCount += 1;
+  checkLimitAndUpdateFont();
+  if (!op) {
+    firstOperand = primaryDisplay.textContent;
+  } else {
+    secondOperand = primaryDisplay.textContent;
+    expAvailable = true;
+  }
+}
+
+function getOperator(opStr) {
+  if (firstOperand && !secondOperand) {
+    op = opStr;
+    secondaryDisplay.textContent = `${firstOperand} ${op}`;
+    resetScreen = true;
+    numberCount = 0;
+  } else if (firstOperand && secondOperand) {
+    equalsBtnNotClicked = true;
+    evaluate();
+    op = opStr;
+    secondaryDisplay.textContent = `${firstOperand} ${op}`;
+  }
+}
+
+function evaluate() {
+  if (expAvailable) {
+    let result = roundOff(operate(op, firstOperand, secondOperand));
+    if (result === null) return;
+    primaryDisplay.textContent = result;
+
+    if (!equalsBtnNotClicked) {
+      secondaryDisplay.textContent = `${firstOperand} ${op} ${secondOperand} =`;
+    }
+    firstOperand = result;
+    secondOperand = "";
+    op = "";
+    numberCount = 0;
+    expAvailable = false;
+    equalsBtnNotClicked = false;
+    resetScreen = true;
+  }
+}
+
+function getDecimal() {
+  if (resetScreen) clearScreen();
+  if (primaryDisplay.textContent.includes(".")) return;
+  if (primaryDisplay.textContent === "") primaryDisplay.textContent = "0";
+  primaryDisplay.textContent += ".";
+  if (!firstOperand) {
+    firstOperand = primaryDisplay.textContent;
+  } else {
+    secondOperand = primaryDisplay.textContent;
+    expAvailable = true;
+  }
+}
+
+function deleteNumber() {
+  primaryDisplay.textContent = primaryDisplay.textContent
+    .toString()
+    .slice(0, -1);
+  numberCount -= 1;
+  checkLimitAndUpdateFont();
+  if (!expAvailable) firstOperand = primaryDisplay.textContent;
+
+  if (expAvailable) {
+    secondOperand = primaryDisplay.textContent;
+    if (!secondOperand) {
+      expAvailable = false;
+    }
+  }
+}
+
+function clear() {
+  primaryDisplay.textContent = "";
+  secondaryDisplay.textContent = "";
+  firstOperand = secondOperand = op = "";
+  expAvailable = resetScreen = false;
+  numberCount = 0;
+  primaryDisplay.style.fontSize = 36 + "px";
+}
+
+function clearScreen() {
+  primaryDisplay.textContent = "";
+  resetScreen = false;
+}
+
+// helper functions
+function roundOff(result) {
+  return Number(result.toFixed(3));
+}
+function checkLimitAndUpdateFont() {
+  if (numberCount <= 10) primaryDisplay.style.fontSize = 36 + "px";
+  else if (numberCount > 10 && numberCount <= 15)
+    primaryDisplay.style.fontSize = 20 + "px";
+  else if (numberCount > 15) {
+    alert("Can't enter more than 15 digits");
+    return;
+  }
+}
+
+// calculator functions
 function add(a, b) {
-  text = a + b;
-  text = Number(text.toFixed(3));
-  display.textContent = text;
+  return a + b;
 }
 
 function subtract(a, b) {
-  text = a - b;
-  text = Number(text.toFixed(3));
-  display.textContent = text;
+  return a - b;
 }
 
 function multiply(a, b) {
-  text = a * b;
-  text = Number(text.toFixed(3));
-  display.textContent = text;
+  return a * b;
 }
 
 function divide(a, b) {
   if (b === 0) {
     alert("can't divide by zero");
-    return (display.textContent = "");
+    return null;
   }
-  text = a / b;
-  text = Number(text.toFixed(3));
-  display.textContent = text;
+  return a / b;
 }
 
 // operate function
 function operate(op, a, b) {
+  a = Number(a);
+  b = Number(b);
   switch (op) {
     case "+":
-      add(a, b);
-      break;
+      return add(a, b);
     case "-":
-      subtract(a, b);
-      break;
+      return subtract(a, b);
     case "*":
-      multiply(a, b);
-      break;
+      return multiply(a, b);
     case "/":
-      divide(a, b);
+      return divide(a, b);
+    default:
+      return null;
   }
 }
-
-function callOperate(expression) {
-  const arr = expression.split(" ");
-  a = parseFloat(arr[0]);
-  op = arr[1];
-  b = parseFloat(arr[2]);
-  operate(op, a, b);
-}
-
-function getIndexOfDecimal(str, whichOperand) {
-  let index;
-  if (whichOperand === "secondOp") {
-    const strArr = str.split(" ");
-    let secondOp = strArr[2];
-    return (index = secondOp.indexOf("."));
-  } else if (whichOperand === "firstOp") {
-    return (index = str.indexOf("."));
-  }
-}
-
-function getTextWidth(str) {
-  let text = document.createElement("span");
-  document.body.appendChild(text);
-
-  text.style.font = "times new roman";
-  text.style.fontSize = 36 + "px";
-  text.style.height = "auto";
-  text.style.width = "auto";
-  text.style.position = "absolute";
-  text.style.whiteSpace = "no-wrap";
-  text.innerHTML = str;
-
-  width = Math.ceil(text.clientWidth);
-  document.body.removeChild(text);
-  return width;
-}
-
-function onClick(btn) {
-  //clear btn
-  if (btn.classList.contains("clear")) {
-    display.textContent = "";
-    text = display.textContent;
-    a = b = op = "";
-  }
-  //delete btn
-  else if (btn.classList.contains("delete")) {
-    text = text.toString();
-    if (text) {
-      let lastChar = text[text.length - 1];
-      if (lastChar === " ") {
-        display.textContent = text.slice(0, text.length - 2);
-      } else {
-        display.textContent = text.slice(0, text.length - 1);
-      }
-
-      text = display.textContent;
-    }
-  }
-  //decimal btn
-  else if (btn.classList.contains("dot")) {
-    // if first operand empty, put 0 in front of decimal
-    if (text === "") {
-      display.textContent += "0" + btn.textContent;
-      text = display.textContent;
-    } else {
-      // check for not repeating decimal in second operand
-      if (/[+\-*/]/.test(text)) {
-        let lastChar = text[text.length - 1];
-        // if second operand empty, put 0 in front of decimal
-        if (lastChar === " ") {
-          display.textContent += "0" + btn.textContent;
-          text = display.textContent;
-        } else {
-          let indexOfDecimal = getIndexOfDecimal(text, "secondOp");
-          if (indexOfDecimal === -1) {
-            display.textContent += btn.textContent;
-            text = display.textContent;
-          }
-        }
-      }
-      // check for not repeating decimal in first operand
-      else {
-        let indexOfDecimal = getIndexOfDecimal(text, "firstOp");
-        if (indexOfDecimal === -1) {
-          display.textContent += btn.textContent;
-          text = display.textContent;
-        }
-      }
-    }
-  }
-  //equals btn
-  else if (btn.classList.contains("equalsBtn")) {
-    //check for expression availability
-    let lastChar = text[text.length - 2];
-    if (!/[+\-*/]/.test(lastChar)) {
-      finalExp = true;
-      callOperate(text);
-    }
-  }
-  //digit btns
-  else if (btn.classList.contains("digit")) {
-    if (finalExp) {
-      display.textContent = "";
-      finalExp = false;
-    }
-    display.textContent += btn.textContent;
-    text = display.textContent;
-    let displayWidth = display.clientWidth - 50;
-    let textWidth = getTextWidth(text);
-    if (textWidth >= displayWidth) {
-      display.style.fontSize = 18 + "px";
-    } else {
-      display.style.fontSize = 36 + "px";
-    }
-  }
-  // operator btns
-  else if (btn.classList.contains("op")) {
-    if (text !== "") {
-      text = text.toString();
-      let lastChar = text[text.length - 2];
-      // don't add another operator if last character is operator
-      if (!/[+\-*/]/.test(lastChar)) {
-        //check for expression availability
-        let exp = text.match(/[+\-*/]/);
-        if (exp) {
-          //if exp available, operate on it
-          callOperate(text);
-        }
-        text += ` ${btn.textContent} `;
-        display.textContent = text;
-        if (finalExp) finalExp = false;
-      }
-    }
-  }
-}
-
-//event listeners
-btns.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    onClick(btn);
-  });
-});

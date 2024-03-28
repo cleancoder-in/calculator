@@ -15,7 +15,8 @@ body {
 .calculator {
   margin-top: 100px;
   width: 300px;
-  height: 430px;
+  height: 70vh;
+  min-height: 420px;
   padding: 20px;
   background-color: rgb(53, 53, 53);
   border: 1px solid black;
@@ -27,15 +28,20 @@ body {
 
 .calculator .display {
   flex-basis: 25%;
-  color: #fff;
   padding: 10px;
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-end;
-  font-size: 36px;
   word-wrap: break-word;
   word-break: break-all;
   text-align: right;
+}
+.calculator .display .displayPrimary {
+  min-width: 64px;
+  font-size: 36px;
+  color: #fff;
+}
+.calculator .display .displaySecondary {
+  min-height: 32px;
+  font-size: 18px;
+  color: lightgray;
 }
 
 .calculator .buttons {
