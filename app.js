@@ -67,7 +67,7 @@ function evaluate() {
   if (expAvailable) {
     let result = operate(op, firstOperand, secondOperand);
     if (result === null) return;
-    roundOff(result);
+    result = roundOff(result);
     primaryDisplay.textContent = result;
 
     if (!equalsBtnNotClicked) {
