@@ -32,7 +32,7 @@ equalsBtn.addEventListener("click", evaluate);
 decimalBtn.addEventListener("click", getDecimal);
 clearBtn.addEventListener("click", clear);
 deleteBtn.addEventListener("click", deleteNumber);
-
+document.addEventListener("keydown", handleKeyboardInput);
 // main functions
 function getNumber(num) {
   if (resetScreen) {
@@ -65,8 +65,9 @@ function getOperator(opStr) {
 
 function evaluate() {
   if (expAvailable) {
-    let result = roundOff(operate(op, firstOperand, secondOperand));
+    let result = operate(op, firstOperand, secondOperand);
     if (result === null) return;
+    roundOff(result);
     primaryDisplay.textContent = result;
 
     if (!equalsBtnNotClicked) {
@@ -123,6 +124,16 @@ function clear() {
 function clearScreen() {
   primaryDisplay.textContent = "";
   resetScreen = false;
+}
+
+function handleKeyboardInput(e) {
+  if (e.key >= 0 && e.key <= 9) getNumber(e.key);
+  if (e.key === "+" || e.key === "-" || e.key === "*" || e.key === "/")
+    getOperator(e.key);
+  if (e.key === ".") getDecimal();
+  if (e.key === "=" || e.key === "Enter") evaluate();
+  if (e.key === "Backspace") deleteNumber();
+  if (e.key === "Escape") clear();
 }
 
 // helper functions
